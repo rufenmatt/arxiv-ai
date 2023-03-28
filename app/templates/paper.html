@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>{{ paper.title }}</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📝</text></svg>">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static',filename='styles/style.css') }}">
+  </head>
+  <body>
+    <div class="container">
+    <h4><a href="/">Go back</a></h4>
+    <h1>{{ paper.title }}</h1>
+    <h2>{{ paper.authors }}</h2>
+    <form class="qa-form mx-auto">
+      <input type="text" id="question" name="question" placeholder="Ask a question...">
+      <button type="button" class="btn btn-primary" style="margin-left: 10px;" onclick="generateAnswer()">
+        <span id="spinner" class="spinner-border spinner-border-sm d-none"></span>
+        <span id="button-text">Submit</span>
+      </button>
+    </form>
+    <div id="answer" style="display:none;"></div>
+    <iframe src="{{ paper.pdf_url }}" height="1000px"></iframe>
+    </div>
+    <script>
+      function generateAnswer() {
+        const button = document.querySelector('.btn');
+        const spinner = document.querySelector('#spinner');
+        const buttonText = document.querySelector('#button-text');
+        button.disabled = true;
+        buttonText.innerText = 'Answering...';
+        spinner.classList.remove('d-none');
+        const prompt = `You are a scientist who has written this research paper abstract and is now participating in a Q&A session. You respond briefly and in a well-structured manner to the following question or instruction about your abstract:\n\n${document.getElementById('question').value}\n\nThe context is:\n\n{{ paper.abstract }}\n\nGive a structured answer and use bullet points if appropriate:`;
+        fetch('/generate-answer', {
+    method: 'POST',
+    body: JSON.stringify({prompt: prompt}),
+    headers: {'Content-Type': 'application/json'}
+  }).then(response => response.json())
+    .then(data => {
+      if (data.answer) { // Check if the answer is not empty
+        document.getElementById('answer').innerHTML = data.answer.replace(/\n/g, "<br>");
+        document.getElementById('answer').style.display = 'block'; // Show the answer element
+      } else {
+        document.getElementById('answer').innerHTML = ''; // Clear the answer element if the answer is empty
+        document.getElementById('answer').style.display = 'none'; // Hide the answer element
+      }
+      button.disabled = false;
+      buttonText.innerText = 'Submit';
+      spinner.classList.add('d-none');
+    })
+    .catch(error => {
+      console.error(error);
+      button.disabled = false;
+      buttonText.innerText = 'Submit';
+      spinner.classList.add('d-none');
+    });
+      }
+    </script>
+  </body>
+</html>

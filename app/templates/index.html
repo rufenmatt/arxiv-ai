@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>AI-powered Q&A for ML papers</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📝</text></svg>">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static',filename='styles/style.css') }}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twbs-pagination/1.4.2/jquery.twbsPagination.min.js"></script>
+  </head>
+  <body>
+    <div class="container">
+    <h1>Use AI to ask questions about machine learning papers</h1>
+
+    {% if session['openai_key'] %}
+	  {% else %}
+    {% if error_message %}
+    <div class="alert alert-danger" role="alert" style="margin-top:50px;">
+      {{ error_message }}
+    </div>
+    {% endif %}
+    <form id="openai-form" action="/set-openai-key" method="POST">
+      <div class="form-group">
+        <input type="text" id="openai-key" name="openai_key" placeholder="Enter your OpenAI API key">
+        <button type="submit" class="btn btn-primary" style="margin-left: 10px;">Submit</button>
+      </div>
+    </form>
+      <div style="text-align:center;margin-top:20px;">Don't have an account yet? <a href="https://platform.openai.com/signup" target="_blank">Create one.</a></div>
+    {% endif %}
+
+    <ul id="paper-list" class="mx-auto">
+      <li></li>
+    </ul>
+    <nav id="pagination" class="pagination"></nav>
+    </div>
+  </body>
+  <script>
+    $(document).ready(function() {
+      var papers = {{ papers|tojson|safe }};
+      var perPage = 10;
+
+      $('#pagination').twbsPagination({
+        totalPages: Math.ceil(papers.length / perPage),
+        visiblePages: 0,
+        prevClass: 'btn-pagination',
+        nextClass: 'btn-pagination',
+        onPageClick: function(event, page) {
+          var startIndex = (page - 1) * perPage;
+          var endIndex = startIndex + perPage;
+          var papersToShow = papers.slice(startIndex, endIndex);
+
+          var html = '';
+          for (var i = 0; i < papersToShow.length; i++) {
+            var paper = papersToShow[i];
+            html += '<li>';
+            html += '<h3><a href="/paper/' + (startIndex+i+1) + '">' + paper.title + '</a></h2>';
+            html += '<p class="authors">' + paper.authors + '</p>';
+            html += '<p class="abstract">' + paper.abstract + '</p>';
+            html += '</li>';
+          }
+
+          $('#paper-list').html(html);
+        },
+        first: false,
+        last: false
+      });
+    });
+    </script>
+</html>
