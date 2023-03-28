@@ -2,6 +2,8 @@
 
 This Flask app is a simple implementation for fetching the latest [arXiv](https://arxiv.org/) papers on machine learning and generating answers to questions using the OpenAI API.
 
+A live version can be found [here](https://arxiv-ai.rufenmatt.repl.co/).
+
 ## Prerequisites
 
 Before running the Flask app, make sure you have the following installed:
