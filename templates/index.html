@@ -53,7 +53,7 @@
           for (var i = 0; i < papersToShow.length; i++) {
             var paper = papersToShow[i];
             html += '<li>';
-            html += '<h3><a href="/paper/' + (startIndex+i+1) + '">' + paper.title + '</a></h2>';
+            html += '<h3><a href="/paper/' + (startIndex+i) + '">' + paper.title + '</a></h2>';
             html += '<p class="authors">' + paper.authors + '</p>';
             html += '<p class="abstract">' + paper.abstract + '</p>';
             html += '</li>';
@@ -65,5 +65,6 @@
         last: false
       });
     });
+
     </script>
 </html>
